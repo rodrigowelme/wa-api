@@ -1,0 +1,237 @@
+import { BaileysEventEmitter, MessageUserReceipt, WAMessageKey, jidNormalizedUser, proto, toNumber } from '@whiskeysockets/baileys';
+import { BaileysEventHandler } from '../wa.type';
+import { logger, prisma } from '@/shared';
+import { transformPrisma } from '../wa.format';
+
+const getKeyAuthor = (key: WAMessageKey | undefined | null) => (key?.fromMe ? 'me' : key?.participant || key?.remoteJid) || '';
+
+export default function messageHandler(sessionId: string, event: BaileysEventEmitter) {
+  let listening = false;
+
+  const set: BaileysEventHandler<'messaging-history.set'> = async ({ messages, isLatest }) => {
+    try {
+      await prisma.$transaction(async (tx) => {
+        if (isLatest) await tx.message.deleteMany({ where: { sessionId } });
+
+        await tx.message.createMany({
+          data: messages.map((message) => ({
+            ...transformPrisma(message),
+            remoteJid: message.key.remoteJid!,
+            id: message.key.id!,
+            sessionId,
+          })),
+        });
+      });
+      logger.info(
+        `wa.message-messaging-history.set, mensagens sincronizadas, sessão: ${sessionId} ${{
+          messages: messages.length,
+        }}`,
+      );
+    } catch (err) {
+      logger.error(`wa.message-messaging-history.set, sessão: ${sessionId}.\n ${err}`);
+    }
+  };
+
+  const upsert: BaileysEventHandler<'messages.upsert'> = async ({ messages, type }) => {
+    switch (type) {
+      case 'append':
+      case 'notify':
+        for (const message of messages) {
+          try {
+            const jid = jidNormalizedUser(message.key.remoteJid!);
+            const data = transformPrisma(message);
+            await prisma.message.upsert({
+              select: { pkId: true },
+              create: {
+                ...data,
+                remoteJid: jid,
+                id: message.key.id!,
+                sessionId,
+              },
+              update: { ...data },
+              where: {
+                sessionId_remoteJid_id: {
+                  remoteJid: jid,
+                  id: message.key.id!,
+                  sessionId,
+                },
+              },
+            });
+
+            const chatExists = (await prisma.chat.count({ where: { id: jid, sessionId } })) > 0;
+            if (type === 'notify' && !chatExists) {
+              event.emit('chats.upsert', [
+                {
+                  id: jid,
+                  conversationTimestamp: toNumber(message.messageTimestamp),
+                  unreadCount: 1,
+                },
+              ]);
+            }
+          } catch (err) {
+            logger.error(`wa.message-messages.upsert, sessão: ${sessionId}.\n ${err}`);
+          }
+        }
+        break;
+    }
+  };
+
+  const update: BaileysEventHandler<'messages.update'> = async (updates) => {
+    for (const { update, key } of updates) {
+      try {
+        await prisma.$transaction(async (tx) => {
+          const prevData = await tx.message.findFirst({
+            where: { id: key.id!, remoteJid: key.remoteJid!, sessionId },
+          });
+
+          if (!prevData) {
+            return logger.info(`wa.message.messages.update, recebi atualização para mensagem não existente, sessão: ${sessionId}\n.`);
+          }
+
+          const data = { ...prevData, ...update } as proto.IWebMessageInfo;
+          await tx.message.delete({
+            select: { pkId: true },
+            where: {
+              sessionId_remoteJid_id: {
+                id: key.id!,
+                remoteJid: key.remoteJid!,
+                sessionId,
+              },
+            },
+          });
+          await tx.message.create({
+            data: {
+              ...transformPrisma(data),
+              id: data.key.id!,
+              remoteJid: data.key.remoteJid!,
+              sessionId,
+            },
+          });
+        });
+      } catch (err) {
+        logger.error(`wa.message-messages.update, sessão: ${sessionId}.\n ${err}`);
+      }
+    }
+  };
+
+  const del: BaileysEventHandler<'messages.delete'> = async (item) => {
+    try {
+      if ('all' in item) {
+        await prisma.message.deleteMany({
+          where: { remoteJid: item.jid, sessionId },
+        });
+        return;
+      }
+
+      const jid = item.keys[0].remoteJid!;
+      await prisma.message.deleteMany({
+        where: {
+          id: { in: item.keys.map((k) => k.id!) },
+          remoteJid: jid,
+          sessionId,
+        },
+      });
+    } catch (err) {
+      logger.error(`wa.message-messages.delete, sessão: ${sessionId}.\n ${err}`);
+    }
+  };
+
+  const updateReceipt: BaileysEventHandler<'message-receipt.update'> = async (updates) => {
+    for (const { key, receipt } of updates) {
+      try {
+        await prisma.$transaction(async (tx) => {
+          const message = await tx.message.findFirst({
+            select: { userReceipt: true },
+            where: { id: key.id!, remoteJid: key.remoteJid!, sessionId },
+          });
+          if (!message) {
+            return logger.debug(`wa.message-message-receipt.update, recebi atualização de recibo para mensagem não existente, sessão: ${sessionId}.\n ${update}`);
+          }
+
+          let userReceipt = (message.userReceipt || []) as unknown as MessageUserReceipt[];
+          const recepient = userReceipt.find((m) => m.userJid === receipt.userJid);
+
+          if (recepient) {
+            userReceipt = [...userReceipt.filter((m) => m.userJid !== receipt.userJid), receipt];
+          } else {
+            userReceipt.push(receipt);
+          }
+
+          await tx.message.update({
+            select: { pkId: true },
+            data: transformPrisma({ userReceipt: userReceipt }),
+            where: {
+              sessionId_remoteJid_id: {
+                id: key.id!,
+                remoteJid: key.remoteJid!,
+                sessionId,
+              },
+            },
+          });
+        });
+      } catch (err) {
+        logger.error(`wa.message-message-receipt.update, sessão: ${sessionId}.\n ${err}`);
+      }
+    }
+  };
+
+  const updateReaction: BaileysEventHandler<'messages.reaction'> = async (reactions) => {
+    for (const { key, reaction } of reactions) {
+      try {
+        await prisma.$transaction(async (tx) => {
+          const message = await tx.message.findFirst({
+            select: { reactions: true },
+            where: { id: key.id!, remoteJid: key.remoteJid!, sessionId },
+          });
+          if (!message) {
+            return logger.debug(`wa.message-messages.reaction, recebi atualização de reação para mensagem não existente, sessão: ${sessionId}.\n ${update}`);
+          }
+
+          const authorID = getKeyAuthor(reaction.key);
+          const reactions = ((message.reactions || []) as proto.IReaction[]).filter((r) => getKeyAuthor(r.key) !== authorID);
+
+          if (reaction.text) reactions.push(reaction);
+          await tx.message.update({
+            select: { pkId: true },
+            data: transformPrisma({ reactions: reactions }),
+            where: {
+              sessionId_remoteJid_id: {
+                id: key.id!,
+                remoteJid: key.remoteJid!,
+                sessionId,
+              },
+            },
+          });
+        });
+      } catch (err) {
+        logger.error(`wa.message-messages.reaction, sessão: ${sessionId}.\n ${err}`);
+      }
+    }
+  };
+
+  const listen = () => {
+    if (listening) return;
+
+    event.on('messaging-history.set', set);
+    event.on('messages.upsert', upsert);
+    event.on('messages.update', update);
+    event.on('messages.delete', del);
+    event.on('message-receipt.update', updateReceipt);
+    event.on('messages.reaction', updateReaction);
+    listening = true;
+  };
+
+  const unlisten = () => {
+    if (!listening) return;
+
+    event.off('messaging-history.set', set);
+    event.off('messages.upsert', upsert);
+    event.off('messages.update', update);
+    event.off('messages.delete', del);
+    event.off('message-receipt.update', updateReceipt);
+    event.off('messages.reaction', updateReaction);
+    listening = false;
+  };
+
+  return { listen, unlisten };
+}

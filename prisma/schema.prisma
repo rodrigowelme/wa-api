@@ -1,0 +1,166 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model Chat {
+  pkId                      Int      @id @default(autoincrement())
+  sessionId                 String   @db.VarChar(128)
+  id                        String
+  messages                  Json?
+  newJid                    String?
+  oldJid                    String?
+  lastMsgTimestamp          BigInt?
+  lastMessageRecvTimestamp  Int?
+  unreadCount               Int?
+  readOnly                  Boolean?
+  endOfHistoryTransfer      Boolean?
+  ephemeralExpiration       Int?
+  ephemeralSettingTimestamp BigInt?
+  endOfHistoryTransferType  Int?
+  conversationTimestamp     BigInt?
+  name                      String?
+  pHash                     String?
+  notSpam                   Boolean?
+  archived                  Boolean?
+  disappearingMode          Json?
+  unreadMentionCount        Int?
+  markedAsUnread            Boolean?
+  participant               Json?
+  tcToken                   Bytes?
+  tcTokenTimestamp          BigInt?
+  contactPrimaryIdentityKey Bytes?
+  pinned                    Int?
+  muteEndTime               BigInt?
+  wallpaper                 Json?
+  mediaVisibility           String?
+  tcTokenSenderTimestamp    BigInt?
+  suspended                 Boolean?
+  terminated                Boolean?
+  createdAt                 BigInt?
+  createdBy                 String?
+  description               String?
+  support                   Boolean?
+  isParentGroup             Boolean?
+  parentGroupId             String?
+  isDefaultSubgroup         Boolean?
+  displayName               String?
+  pnJid                     String?
+  shareOwnPn                Boolean?
+  pnhDuplicateLidThread     Boolean?
+  lidJid                    String?
+
+  @@unique([sessionId, id], map: "unique_id_per_session_id_chat")
+  @@index([sessionId])
+}
+
+model Contact {
+  pkId         Int     @id @default(autoincrement())
+  sessionId    String  @db.VarChar(128)
+  id           String  @db.VarChar(128)
+  name         String? @db.VarChar(128)
+  notify       String? @db.VarChar(128)
+  verifiedName String? @db.VarChar(128)
+  imgUrl       String? @db.VarChar(128)
+  status       String? @db.VarChar(128)
+
+  @@unique([sessionId, id], map: "unique_id_per_session_id_contact")
+  @@index([sessionId])
+}
+
+model Group {
+  pkId              Int      @id @default(autoincrement())
+  sessionId         String   @db.VarChar(128)
+  id                String   @db.VarChar(128)
+  owner             String?
+  subject           String
+  subjectOwner      String?
+  subjectTime       BigInt?
+  creation          BigInt?
+  desc              String?
+  descOwner         String?
+  descId            String?
+  restrict          Boolean?
+  announce          Boolean?
+  size              Int?
+  participants      Json
+  ephemeralDuration Int?
+  inviteCode        String?
+
+  @@unique([sessionId, id], map: "unique_id_per_session_id_group")
+  @@index([sessionId])
+}
+
+model Message {
+  pkId                            Int      @id @default(autoincrement())
+  sessionId                       String   @db.VarChar(128)
+  id                              String   @db.VarChar(128)
+  remoteJid                       String   @db.VarChar(128)
+  key                             Json
+  message                         Json? 
+  messageTimestamp                BigInt?
+  status                          Int?
+  participant                     String?
+  messageC2STimestamp             BigInt?
+  ignore                          Boolean?
+  starred                         Boolean?
+  broadcast                       Boolean?
+  pushName                        String?
+  mediaCiphertextSha256           Bytes?
+  multicast                       Boolean?
+  urlText                         Boolean?
+  urlNumber                       Boolean?
+  messageStubType                 Int? 
+  clearMedia                      Boolean?
+  messageStubParameters           Json?
+  duration                        Int?
+  labels                          Json?
+  paymentInfo                     Json? 
+  finalLiveLocation               Json? 
+  quotedPaymentInfo               Json? 
+  ephemeralStartTimestamp         BigInt?
+  ephemeralDuration               Int?
+  ephemeralOffToOn                Boolean?
+  ephemeralOutOfSync              Boolean?
+  bizPrivacyStatus                Json? 
+  verifiedBizName                 String?
+  mediaData                       Json? 
+  photoChange                     Json? 
+  userReceipt                     Json?
+  reactions                       Json?
+  quotedStickerData               Json? 
+  futureproofData                 Bytes?
+  statusPsa                       Json? 
+  pollUpdates                     Json?
+  pollAdditionalMetadata          Json? 
+  agentId                         String?
+  statusAlreadyViewed             Boolean?
+  messageSecret                   Bytes?
+  keepInChat                      Json? 
+  originalSelfAuthorUserJidString String?
+  revokeMessageTimestamp          BigInt?
+  pinInChat                       Json? 
+  futureproofMessageSecretMessage Json? 
+
+  @@unique([sessionId, remoteJid, id], map: "unique_message_key_per_session_id")
+  @@index([sessionId])
+}
+
+model Session {
+  pkId      Int    @id @default(autoincrement())
+  sessionId String @db.VarChar(128)
+  id        String @db.VarChar(255)
+  data      String @db.Text
+
+  @@unique([sessionId, id], map: "unique_id_per_session_id_session")
+  @@index([sessionId, id])
+}
