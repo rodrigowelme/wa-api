@@ -1,4 +1,5 @@
-import { createSession, getSession, listSessions, sessionExists } from '@/modules/wa/wa.init';
+import { createSession, getSession, listSessions, name, sessionExists } from '@/modules/wa/wa.init';
+import { logger } from '@/shared';
 import { RequestHandler } from 'express';
 
 export const addSSE: RequestHandler = async (req, res) => {
@@ -10,7 +11,7 @@ export const addSSE: RequestHandler = async (req, res) => {
     Connection: 'keep-alive',
   });
 
-  listSessions();
+  logger.info(await name(sessionId));
 
   if (sessionExists(sessionId)) {
     res.write(`data: ${JSON.stringify({ error: 'Session already exists' })}\n\n`);

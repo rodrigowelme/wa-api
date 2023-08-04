@@ -16,6 +16,10 @@ const MAX_RECONNECT_RETRIES = Number(process.env.MAX_RECONNECT_RETRIES || 5);
 const SSE_MAX_QR_GENERATION = Number(process.env.SSE_MAX_QR_GENERATION || 5);
 const SESSION_CONFIG_ID = 'session-config';
 
+export async function name(id: string) {
+  return SSEQRGenerations.get(id);
+}
+
 export async function init() {
   const sessions = await prisma.session.findMany({
     select: { sessionId: true, data: true },
