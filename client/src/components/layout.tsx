@@ -1,10 +1,17 @@
 import { Navbar } from './navbar';
-import { SideBar } from './sidebar';
-export default function Layout() {
+import { Sidebar } from './sidebar';
+
+interface layout {
+  children: React.ReactNode;
+}
+export default function Layout({ children }: layout) {
   return (
-    <>
+    <main data-theme="aqua" className="flex flex-col h-screen">
       <Navbar />
-      <SideBar />
-    </>
+      <div className="flex overflow-auto h-full">
+        <Sidebar />
+        {children}
+      </div>
+    </main>
   );
 }

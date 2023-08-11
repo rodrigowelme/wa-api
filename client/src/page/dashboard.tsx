@@ -2,8 +2,10 @@ import Layout from '../components/layout';
 
 export function PageDashboard() {
   return (
-    <main>
-      <Layout />
-    </main>
+    <Layout>
+      <main>
+        <h1>ola</h1>
+      </main>
+    </Layout>
   );
 }
