@@ -1,15 +1,26 @@
 import { RiMenu2Fill } from 'react-icons/ri';
 import { FaUserLarge } from 'react-icons/fa6';
-export function Navbar() {
+
+interface Navbar {
+  setMenuNavbar: React.Dispatch<React.SetStateAction<boolean>>;
+  menuNavbar: boolean;
+}
+
+export function Navbar({ setMenuNavbar, menuNavbar }: Navbar) {
   return (
     <div className="navbar bg-base-300">
       <div className="flex-none">
-        <button className="btn btn-square btn-ghost">
+        <button className="btn btn-square btn-ghost" onClick={() => setMenuNavbar(!menuNavbar)}>
           <RiMenu2Fill size={30} />
         </button>
       </div>
       <div className="flex-1">
         <a className="btn btn-ghost normal-case text-xl">wa-api</a>
+      </div>
+      <div className="flex-none">
+        <select name="" id="">
+          <option value="">Dark</option>
+        </select>
       </div>
       <div className="flex-none">
         <div className="dropdown dropdown-end">
