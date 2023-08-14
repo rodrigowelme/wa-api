@@ -1,5 +1,6 @@
 import { RiMenu2Fill } from 'react-icons/ri';
 import { FaUserLarge } from 'react-icons/fa6';
+import { Themes } from './themes';
 
 interface Navbar {
   setMenuNavbar: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,6 +17,9 @@ export function Navbar({ setMenuNavbar, menuNavbar }: Navbar) {
       </div>
       <div className="flex-1">
         <a className="btn btn-ghost normal-case text-xl">wa-api</a>
+      </div>
+      <div>
+        <Themes/>
       </div>
       <div className="flex-none">
         <div className="dropdown dropdown-end">

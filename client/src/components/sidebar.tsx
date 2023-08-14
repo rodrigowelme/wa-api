@@ -5,14 +5,14 @@ interface Sidebar {
   menuNavbar: boolean;
 }
 
-export function Sidebar({ menuNavbar }: Sidebar) {
+export function Sidebar({ setMenuNavbar, menuNavbar }: Sidebar) {
   return (
-    <div className="overflow-auto bg-base-300 hidden md:block">
-      <ul className="menu text-base-content">
+    <div className={`sm:block ${menuNavbar? 'block' : 'block'} overflow-auto bg-base-300`} onMouseEnter={()=> setMenuNavbar(!menuNavbar)} onMouseLeave={()=> setMenuNavbar(!menuNavbar)}>
+      <ul className={`menu text-base-content`} >
         <li>
           <a>
             <SiSessionize size={20} />
-            <p className={`duration-500 ${menuNavbar ? 'ml-0' : '-ml-52'}`}>Gerenciar Sessões</p>
+            <p className={`overflow-hidden transition-[width] duration-500 ${menuNavbar ? 'w-40' : 'w-0'} whitespace-nowrap`}>Gerenciar Sessões</p>
           </a>
         </li>
       </ul>
