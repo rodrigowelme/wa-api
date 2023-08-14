@@ -18,11 +18,6 @@ export function Navbar({ setMenuNavbar, menuNavbar }: Navbar) {
         <a className="btn btn-ghost normal-case text-xl">wa-api</a>
       </div>
       <div className="flex-none">
-        <select name="" id="">
-          <option value="">Dark</option>
-        </select>
-      </div>
-      <div className="flex-none">
         <div className="dropdown dropdown-end">
           <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
             <div className="w-10 rounded-full">

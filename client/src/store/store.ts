@@ -1,8 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import configSlice from './configSlice';
 
-export default configureStore({
+export const store = configureStore({
   reducer: {
-    counter: configSlice,
+    config: configSlice,
   },
 });
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

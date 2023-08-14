@@ -12,7 +12,7 @@ export function Sidebar({ menuNavbar }: Sidebar) {
         <li>
           <a>
             <SiSessionize size={20} />
-            <p className="">Gerenciar Sessões</p>
+            <p className={`duration-500 ${menuNavbar ? 'ml-0' : '-ml-52'}`}>Gerenciar Sessões</p>
           </a>
         </li>
       </ul>

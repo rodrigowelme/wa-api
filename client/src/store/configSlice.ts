@@ -1,29 +1,57 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { RootState } from './store';
 
-export const counterSlice = createSlice({
-  name: 'counter',
-  initialState: {
-    value: 0,
-  },
+export const themes = [
+  'light',
+  'dark',
+  'cupcake',
+  'bumblebee',
+  'emerald',
+  'corporate',
+  'synthwave',
+  'retro',
+  'cyberpunk',
+  'valentine',
+  'halloween',
+  'garden',
+  'forest',
+  'aqua',
+  'lofi',
+  'pastel',
+  'fantasy',
+  'wireframe',
+  'black',
+  'luxury',
+  'dracula',
+  'cmyk',
+  'autumn',
+  'business',
+  'acid',
+  'lemonade',
+  'night',
+  'coffee',
+  'winter',
+];
+
+interface Config {
+  theme: string;
+}
+
+export const initialState = {
+  theme: 'light',
+};
+
+export const configSlice = createSlice({
+  name: 'config',
+  initialState,
   reducers: {
-    increment: (state) => {
-      // Redux Toolkit allows us to write "mutating" logic in reducers. It
-      // doesn't actually mutate the state because it uses the Immer library,
-      // which detects changes to a "draft state" and produces a brand new
-      // immutable state based off those changes.
-      // Also, no return statement is required from these functions.
-      state.value += 1;
-    },
-    decrement: (state) => {
-      state.value -= 1;
-    },
-    incrementByAmount: (state, action) => {
-      state.value += action.payload;
+    changeTheme: (state, { payload }: PayloadAction<Config>) => {
+      return { ...state, ...payload };
     },
   },
 });
+export const { changeTheme } = configSlice.actions;
 
-// Action creators are generated for each case reducer function
-export const { increment, decrement, incrementByAmount } = counterSlice.actions;
+export const config = (state: RootState): Config => state.config;
 
-export default counterSlice.reducer;
+export default configSlice.reducer;
