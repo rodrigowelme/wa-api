@@ -1,4 +1,5 @@
 import { SiSessionize } from 'react-icons/si';
+import {Link} from 'react-router-dom'
 
 interface Sidebar {
   setMenuNavbar: React.Dispatch<React.SetStateAction<boolean>>;
@@ -7,13 +8,13 @@ interface Sidebar {
 
 export function Sidebar({ setMenuNavbar, menuNavbar }: Sidebar) {
   return (
-    <div className={`sm:block ${menuNavbar? 'block' : 'block'} overflow-auto bg-base-300`} onMouseEnter={()=> setMenuNavbar(!menuNavbar)} onMouseLeave={()=> setMenuNavbar(!menuNavbar)}>
-      <ul className={`menu text-base-content`} >
+    <div className={`overflow-auto bg-base-300`}>
+      <ul className={`menu text-base-content`}>
         <li>
-          <a>
+          <Link to={'/sessions'}>
             <SiSessionize size={20} />
-            <p className={`overflow-hidden transition-[width] duration-500 ${menuNavbar ? 'w-40' : 'w-0'} whitespace-nowrap`}>Gerenciar Sessões</p>
-          </a>
+            <p className={`overflow-hidden transition-[width] duration-500 ${menuNavbar ? 'w-32' : 'w-0'} whitespace-nowrap`}>Gerenciar Sessões</p>
+          </Link>
         </li>
       </ul>
     </div>

@@ -1,10 +1,9 @@
-import Layout from '../components/layout';
+import Layout from "../components/layout";
 
 export function PageSessions() {
   return (
-    <>
-      <Layout />
-      <p>sessão</p>
-    </>
-  );
+    <Layout>
+      <h1>session</h1>
+    </Layout>
+  )
 }

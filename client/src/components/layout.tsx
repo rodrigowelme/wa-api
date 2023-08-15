@@ -1,17 +1,14 @@
-import { useState } from 'react';
-import { Navbar } from './navbar';
-import { Sidebar } from './sidebar';
-import { useSelector } from 'react-redux';
-import { config } from '../store/configSlice';
+import { useState } from "react";
+import { Navbar } from "./navbar";
+import { Sidebar } from "./sidebar";
 
-interface layout {
+interface Layout {
   children: React.ReactNode;
 }
-export default function Layout({ children }: layout) {
+export default function Layout({ children }: Layout) {
   const [menuNavbar, setMenuNavbar] = useState(false);
-  const { theme } = useSelector(config);
   return (
-    <main data-theme={theme} className="flex flex-col h-screen">
+    <main className="flex flex-col h-screen">
       <Navbar setMenuNavbar={setMenuNavbar} menuNavbar={menuNavbar} />
       <div className="flex overflow-auto h-full">
         <Sidebar setMenuNavbar={setMenuNavbar} menuNavbar={menuNavbar} />

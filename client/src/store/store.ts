@@ -1,9 +1,9 @@
-import { configureStore } from '@reduxjs/toolkit';
-import configSlice from './configSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import configAppSlice from "./configAppSlice";
 
 export const store = configureStore({
   reducer: {
-    config: configSlice,
+    configApp: configAppSlice,
   },
 });
 

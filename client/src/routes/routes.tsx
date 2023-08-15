@@ -1,15 +1,12 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { PageHome } from '../page/home';
-import { PageDashboard } from '../page/dashboard';
-import { PageSessions } from '../page/sessions';
-
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { PageLogin } from "../page/login";
+import { PageHome } from "../page/home";
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<PageHome />} path="/" />
-        <Route element={<PageDashboard />} path="/dashboard" />
-        <Route element={<PageSessions />} path="/sessions" />
+        <Route element={<PageLogin />} path="/login" />
+        <Route element={<PageHome />} path="/home" />
       </Routes>
     </BrowserRouter>
   );

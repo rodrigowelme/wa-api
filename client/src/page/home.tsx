@@ -1,14 +1,11 @@
-import { useNavigate } from 'react-router-dom';
+import Layout from '../components/layout';
 
 export function PageHome() {
-  const route = useNavigate();
   return (
-    <>
-      <div className="grid h-screen place-content-center">
-        <button className="btn btn-primary" onClick={() => route('/dashboard')}>
-          Login
-        </button>
-      </div>
-    </>
+    <Layout>
+      <main>
+        <h1>ola</h1>
+      </main>
+    </Layout>
   );
 }
