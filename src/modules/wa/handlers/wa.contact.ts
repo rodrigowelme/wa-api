@@ -34,11 +34,10 @@ export default function contactHandler(sessionId: string, event: BaileysEventEmi
         }),
       ]);
       logger.info(
-        {
+        `${{
           deletedContacts: deletedOldContactIds.length,
           newContacts: contacts.length,
-        },
-        `wa.contact-messaging-history.set, contatos sincronizados, sessão: ${sessionId}.`,
+        }} wa.contact-messaging-history.set, contatos sincronizados, sessão: ${sessionId}.`,
       );
     } catch (err) {
       logger.error(`wa.contact-messaging-history.set, sessão: ${sessionId}.\n ${err}`);

@@ -1,7 +1,6 @@
 {
   "scripts": {
-    "server:dev": "tsx watch src/index.ts",
-    "client:dev": "cd client && npm run dev"
+    "dev": "tsx watch src/index.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",
@@ -30,6 +29,7 @@
     "prisma": "^5.0.0",
     "qrcode": "^1.5.3",
     "qrcode-terminal": "^0.12.0",
-    "tsx": "^3.12.7"
+    "tsx": "^3.12.7",
+    "winston": "^3.10.0"
   }
 }

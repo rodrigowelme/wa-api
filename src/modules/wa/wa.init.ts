@@ -59,7 +59,7 @@ export async function createSession(options: createSessionOptions) {
         prisma.session.deleteMany({ where: { sessionId } }),
       ]);
     } catch (e) {
-      logger.error(e, 'An error occured during session destroy');
+      logger.error('An error occured during session destroy');
     } finally {
       sessions.delete(sessionId);
     }
@@ -80,7 +80,7 @@ export async function createSession(options: createSessionOptions) {
     }
 
     if (!restartRequired) {
-      logger.info({ attempts: retries.get(sessionId) ?? 1, sessionId }, 'Reconnecting...');
+      logger.info(`${{ attempts: retries.get(sessionId) ?? 1, sessionId }} Reconnecting...`);
     }
     setTimeout(() => createSession(options), restartRequired ? 0 : RECONNECT_INTERVAL);
   };
@@ -93,7 +93,7 @@ export async function createSession(options: createSessionOptions) {
           res.status(200).json({ qr });
           return;
         } catch (e) {
-          logger.error(e, 'An error occured during QR generation');
+          logger.error('An error occured during QR generation');
           res.status(500).json({ error: 'Unable to generate QR' });
         }
       }
@@ -107,7 +107,7 @@ export async function createSession(options: createSessionOptions) {
       try {
         qr = await toDataURL(connectionState.qr);
       } catch (e) {
-        logger.error(e, 'An error occured during QR generation');
+        logger.error('An error occured during QR generation');
       }
     }
 

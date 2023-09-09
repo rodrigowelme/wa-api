@@ -1,13 +1,14 @@
 import { PrismaClient } from '@prisma/client';
-import pino from 'pino';
+import winston, { createLogger } from 'winston';
 
 export const prisma = new PrismaClient();
-export const logger = pino({
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-    },
-  },
-  level: process.env.LOG_LEVEL || 'info',
+export const logger = createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.colorize({ all: true }),
+    winston.format.label({ label: `Label🏷️` }),
+    winston.format.timestamp({ format: 'DD-MMM-YYYY HH:mm:ss' }),
+    winston.format.printf((info) => `${info.level}: ${info.label}: ${[info.timestamp]}: ${info.message}`),
+  ),
+  transports: [new winston.transports.Console()],
 });
