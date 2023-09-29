@@ -12,7 +12,7 @@ export function PageLogin() {
           e.preventDefault();
         }}
       >
-        <img src={LOGO} alt="" />
+        <img src={LOGO} />
         <label className="label">
           <span className="label-text text-md">E-mail</span>
         </label>
@@ -23,7 +23,7 @@ export function PageLogin() {
         </label>
         <input type="text" placeholder="Senha" className="input input-bordered w-full" />
 
-        <button className="btn btn-neutral mx-auto" type="submit">
+        <button className="btn bg-base-100 mx-auto btn-ghost" type="submit">
           Entrar
         </button>
       </form>
